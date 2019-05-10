@@ -47,7 +47,7 @@ frame_part =
 18,19,
 ```
 And u can get pixel easily by:
-```
+```cpp
 // test frame array
 uint8_t arr[] = {
     1,2,3,0,
@@ -65,7 +65,7 @@ return in terminal
 8
 ```
 ***BUT!!!*** this way is so ***slow***, it's 1.5 times slower(test in Arduino) than get value from `arr` directly, like:
-```
+```cpp
 printf(arr[9]);
 ```
 
