@@ -12,6 +12,22 @@
 
 extern "C" {
 // use this in .c file
+struct pixel8 {
+  union {
+    struct {
+      uint8_t r;
+      uint8_t g;
+      uint8_t b;
+    };
+    struct {
+      uint8_t y;
+      uint8_t u;
+      uint8_t v;
+    };
+    uint8_t gray;
+    uint8_t pixel[3];
+  };
+};
 struct frame8 {
   uint8_t* pixel;
   unsigned int col;
@@ -79,11 +95,27 @@ class frame {
     }
   }
 
+  unsigned int iterator_offset_ = 0;
+  bool pixelIterator(pixel8* const pixels) {
+    if (iterator_offset_ < rec_.height*rec_.width) {
+      unsigned int row = iterator_offset_/rec_.width;
+      unsigned int col = iterator_offset_%rec_.width;
+      iterator_offset_++;
+      pixels->r = pixel_[0][row][col];
+      pixels->g = pixel_[1][row][col];
+      pixels->b = pixel_[2][row][col];
+      return true;
+    }
+    return false;
+  }
+
   rectangle rec_ = { 0, 0, cols, rows};
 
 };
 
-uint8_t getValue(uint8_t (*p)[3][4], int k, int h, int w);
+inline uint8_t getValue(uint8_t p[][3][4], int k, int h, int w) {
+  return p[k][h][w];
+}
 
 
 

@@ -38,7 +38,7 @@
 //frame<rows, cols, channel>::~frame() {}
 
 
-uint8_t getValue(uint8_t (*p)[3][4], int k, int h, int w) {
-  return p[k][h][w];
-}
+//inline uint8_t getValue(uint8_t (*p)[3][4], int k, int h, int w) {
+//  return p[k][h][w];
+//}
 
