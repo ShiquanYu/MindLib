@@ -2,7 +2,7 @@ Welcome!!!
 ==========
 
 Thank u for coming to watch my 1st idea.
-This is a library for frame read/write in micro systerms, it won't `new` any thing in class, and it cost little memory, and u can get any part in frame easily by use this library!
+This is a library for frame read/write in micro systerms, it won't `new` any memory in class, and it only cost a little memory(10byte? or 20 byte in later version), and u can get any part in frame easily by use this library!
 
 
 Example

@@ -34,6 +34,10 @@ struct frame8 {
   unsigned int row;
   unsigned int channel;
 };
+struct point {
+  unsigned int x;
+  unsigned int y;
+};
 struct line {
   unsigned int start_x;
   unsigned int start_y;
@@ -48,11 +52,23 @@ struct rectangle {
 };
 }
 
+class FrameBase {
+ protected:
+  bool is_continous = true;
+
+ public:
+  virtual ~FrameBase();
+  virtual bool resetIter() = 0;
+  virtual bool pixelIter(pixel8* pixel) = 0;
+  virtual bool isContinous() { return is_continous; }
+};
+
 template<unsigned int rows, unsigned int cols, unsigned int channel=3>
 class frame {
  protected:
   frame8 frame_src_;                          // source frame
   uint8_t (* pixel_)[rows][cols];
+  rectangle rec_ = { 0, 0, cols, rows};
 
  public:
   frame(uint8_t* pixel)
@@ -84,6 +100,14 @@ class frame {
     return pixel_[n];
   }
   frame8& getSrcFrame() {return frame_src_;}
+  unsigned int Channels() {return channel;}
+  unsigned int Size() { return rec_.width*rec_.height*channel; }
+  unsigned int Cols() { return rec_.width; }
+  unsigned int Rows() { return rec_.height; }
+  unsigned int StartCol() { return rec_.start_x; }
+  unsigned int StartRow() { return rec_.start_y; }
+  void setRect(rectangle& rect) { rec_=rect; }
+
   void printFrame() {
     for (size_t c = 0; c < channel; ++c) {
       for (size_t row = 0; row < rec_.height; ++row) {
@@ -94,9 +118,8 @@ class frame {
       }
     }
   }
-
   unsigned int iterator_offset_ = 0;
-  bool pixelIterator(pixel8* const pixels) {
+  bool pixelIter(pixel8* const pixels) {
     if (iterator_offset_ < rec_.height*rec_.width) {
       unsigned int row = iterator_offset_/rec_.width;
       unsigned int col = iterator_offset_%rec_.width;
@@ -108,9 +131,6 @@ class frame {
     }
     return false;
   }
-
-  rectangle rec_ = { 0, 0, cols, rows};
-
 };
 
 inline uint8_t getValue(uint8_t p[][3][4], int k, int h, int w) {
