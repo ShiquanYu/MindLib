@@ -2,6 +2,7 @@
 #define SIMPLE_LIST_H_
 
 #include <stdio.h>
+#include <string.h>
 
 template<class element_t>
 class SimpleNode {
@@ -118,41 +119,48 @@ class SimpleList {
   size_t size_ = 0;
 };
 
-template<template<class element_t> class node_t, size_t DEEP>
-class SimpleQueue {//: private SimpleList<node_t<class element_t>> {
+template<class element_t,size_t DEEP, template<class> class node_t = SimpleNode>
+class SimpleQueue : private SimpleList<node_t<element_t>> {
  public:
   SimpleQueue() {}
   ~SimpleQueue() {}
   SimpleQueue& operator=(const SimpleQueue &) = delete;
   SimpleQueue(const SimpleQueue&) = delete;
 
-//  element_t* peek(void) { return &SimpleList<node_t<class element_t>>::front()->element_; };
-//  element_t* pop(void) {
-//    node_t<class element_t>* node = SimpleList<node_t<class element_t>>::pop_front();
-//    if (node) {
-//      first_++;
-//      if (first_ >= DEEP) {
-//        first_ = 0;
-//      }
-//    }
-//    return &node->element_;
-//  }
-//  element_t* push(element_t* elem) {
-//    if (size() >= DEEP) {
-//      pop();
-//    }
-////    memcpy(&node_[last_].element_, elem, sizeof(element_t));
-//    SimpleList<node_t<class element_t>>::push_back(&node_[last_]);
-//    last_++;
-//    if (last_ >= DEEP) {
-//      last_ = 0;
-//    }
-//    return &node_[last_].element_;
-//  }
-//  size_t size(void) { return SimpleList<node_t<class element_t>>::size(); }
+ element_t& peek(void) { return SimpleList<node_t<element_t>>::front()->element_; };
+ element_t& pop(void) {
+   node_t<element_t>* node = SimpleList<node_t<element_t>>::pop_front();
+   if (node) {
+     first_++;
+     if (first_ >= DEEP) {
+       first_ = 0;
+     }
+   }
+   return node->element_;
+ }
+ element_t& push(element_t& elem) {
+   if (size() >= DEEP) {
+     pop();
+   }
+   memcpy(&node_[last_].element_, &elem, sizeof(element_t));
+   SimpleList<node_t<element_t>>::push_back(&node_[last_]);
+   last_++;
+   if (last_ >= DEEP) {
+     last_ = 0;
+   }
+   return node_[last_].element_;
+ }
+ size_t size(void) { return SimpleList<node_t<element_t>>::size(); }
+ void showMessage() {
+  printf("first_ = %lu, last_ = %lu, size = %lu\n", first_, last_, size());
+  for (size_t i = 0; i < size(); ++i) {
+    printf("%d,", node_[(i+first_)%DEEP].element_);
+  }
+  printf("\n");
+ }
 
  protected:
-  node_t<class element_t> node_[DEEP];
+  node_t<element_t> node_[DEEP];
   size_t first_ = 0;
   size_t last_ = 0;
 };
