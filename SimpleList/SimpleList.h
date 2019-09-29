@@ -7,7 +7,12 @@
 template<class element_t>
 class SimpleNode {
  public:
-  SimpleNode(element_t element = {0})
+  SimpleNode()
+   : next_(nullptr) {}
+  SimpleNode(element_t& element)
+      : element_(element),
+        next_(nullptr) {}
+  SimpleNode(element_t&& element)
       : element_(element),
         next_(nullptr) {}
   ~SimpleNode() {}
@@ -15,7 +20,7 @@ class SimpleNode {
   SimpleNode(const SimpleNode&) = delete;
 
   element_t element_;
-  SimpleNode* next_;
+  SimpleNode<element_t>* next_;
 };
 
 template<class node_t>
@@ -27,10 +32,10 @@ class SimpleList {
   SimpleList(const SimpleList&) = delete;
 
   node_t* front(void) {
-    return head_.next_;
+    return head_;
   }
   node_t* back(void) {
-    node_t* ret = head_.next_;
+    node_t* ret = front();
     if (!ret) {
       // list is empty
       return nullptr;
@@ -41,69 +46,93 @@ class SimpleList {
     return ret;
   }
   node_t* push_front(node_t* node) {
-    node_t* temp = head_.next_;
-    head_.next_ = node;
-    node->next_ = temp;
-    size_++;
+    if (node) {
+      if (head_){
+        node_t* temp = head_->next_;
+        head_->next_ = node;
+        node->next_ = temp;
+      } else {
+        head_ = node;
+      }
+      size_++;
+    }
     return node;
   }
   node_t* pop_front(void) {
-    node_t* front = head_.next_;
-    if (front && front->next_) {
-      head_.next_ = front->next_;
-    }
+    node_t* front = this->front();
     if (front) {
       size_--;
+      head_ = front->next_;
     }
     return front;
   }
   node_t* push_back(node_t* node) {
-    node_t* back = this->back();
-    if (!back) {
-      // if the list is empty
-      return push_front(node);
+    if (node) {
+      node_t* back = this->back();
+      if (!back) {
+        // if the list is empty
+        return push_front(node);
+      }
+      back->next_ = node;
+      node->next_ = nullptr;
+      size_++;
     }
-    back->next_ = node;
-    node->next_ = nullptr;
-    size_++;
     return node;
   }
   node_t* pop_back(void) {
-    if (!front()) {
+    node_t* prev = front();
+    if (!prev) {
+      // the list is empty
       return nullptr;
     }
-    node_t* prev = &head_;
     node_t* back = prev->next_;
-    while (back->next_) {
-      prev = back;
-      back = back->next_;
-    }
-    prev->next_ = nullptr;
     if (back) {
-      size_--;
+      while (back->next_) {
+        prev = back;
+        back = back->next_;
+      }
+      prev->next_ = nullptr;
+      if (back) {
+        size_--;
+      }
+      return back;
+    } else {
+      clear();
+      return prev;
     }
-    return back;
   }
   node_t* remove(node_t* node) {
-    node_t* prev = &head_;
+    node_t* prev = front();
+    if (!prev) {
+      // the list is empty
+      return nullptr;
+    } else {
+      if (prev == node) {
+        head_ = node->next_;
+        size_--;
+        return node;
+      }
+    }
     node_t* ret = prev->next_;
-    do {
+    while (ret) {
       if (ret == node) {
         prev->next_=node->next_;
+        size_--;
         return node;
       }
       prev = ret;
       ret = ret->next_;
-    } while (ret);
+    }
     return nullptr;
   }
   void clear(void) {
-    head_.next_ = nullptr;
+    head_ = nullptr;
+    size_ = 0;
   }
   size_t size(void) { return size_; }
 
   node_t* get_node_if(bool (*isNode)(node_t*)) {
-    node_t* ret = head_.next_;
+    node_t* ret = front();
     while (ret) {
       if (isNode(ret)) {
         return ret;
@@ -115,7 +144,7 @@ class SimpleList {
 
  private:
  protected:
-  node_t head_ = { 0 };
+  node_t* head_ = nullptr;
   size_t size_ = 0;
 };
 
@@ -150,13 +179,17 @@ class SimpleQueue : private SimpleList<node_t<element_t>> {
    }
    return node_[last_].element_;
  }
+ element_t& push(element_t&& elem) {
+   return push(elem);
+ }
  size_t size(void) { return SimpleList<node_t<element_t>>::size(); }
  void showMessage() {
-  printf("first_ = %lu, last_ = %lu, size = %lu\n", first_, last_, size());
-  for (size_t i = 0; i < size(); ++i) {
-    printf("%d,", node_[(i+first_)%DEEP].element_);
-  }
-  printf("\n");
+  printf("first_ = %u, last_ = %u, size = %u\n", first_, last_, size());
+ }
+ void clear(void) {
+   SimpleList<node_t<element_t>>::clear();
+   first_ = 0;
+   last_ = 0;
  }
 
  protected:
