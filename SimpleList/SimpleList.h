@@ -28,8 +28,15 @@ class SimpleList {
  public:
   SimpleList() {}
   ~SimpleList() {}
-  SimpleList& operator=(const SimpleList &) = delete;
-  SimpleList(const SimpleList&) = delete;
+  SimpleList& operator=(const SimpleList& list) {
+    this->size_ = list.size_;
+    this->head_ = list.head_;
+    return *this;
+  }
+  SimpleList(const SimpleList& list) {
+    this->size_ = list.size_;
+    this->head_ = list.head_;
+  }
 
   node_t* front(void) {
     return head_;
