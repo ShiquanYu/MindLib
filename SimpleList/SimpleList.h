@@ -174,7 +174,7 @@ class SimpleQueue : private SimpleList<node_t<element_t>> {
    }
    return node->element_;
  }
- element_t& push(element_t& elem) {
+ element_t& push(const element_t& elem) {
    if (size() >= DEEP) {
      pop();
    }
@@ -185,9 +185,6 @@ class SimpleQueue : private SimpleList<node_t<element_t>> {
      last_ = 0;
    }
    return node_[last_].element_;
- }
- element_t& push(element_t&& elem) {
-   return push(elem);
  }
  size_t size(void) { return SimpleList<node_t<element_t>>::size(); }
  void showMessage() {
